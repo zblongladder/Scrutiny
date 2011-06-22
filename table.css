@@ -1,0 +1,19 @@
+.ratings{
+	position:relative;
+	float:right;
+	width:40%;
+	
+}
+.ratings table{
+	font-size:.8em;
+	border:1px solid;
+	border-collapse: collapse;
+}
+.ratings td{
+	border:1px solid gray;
+
+}
+.ratings th{
+	border:1px solid gray;
+
+}

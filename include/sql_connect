@@ -1,0 +1,23 @@
+<?php
+//getting the neccessary connection info from file & connecting to db.
+$sql_info=fopen("private/sql_info",r);
+while(!feof($sql_info)){
+  $line = fgets($sql_info);
+  if(preg_match("/^#/",$line)){
+    next;
+  }
+  else if(preg_match("/^host\s+(\S+)",$line)){
+    $sql_server=$matches[$1];
+  }
+  else if(preg_match("/^username\s+(\S+)",$line)){
+    $sql_user=$matches[1];
+  }
+  else if(preg_match("/^password\s+(\S+)",$line)){
+    $sql_passwd=$matches[1];
+  }
+  else if(preg_match("/^database\s+(\S+)",$line)){
+    $sql_db=$matches[1];
+  }
+  mysql_connect("$sql_server", "$sql_user", "$sql_passwd") or die(mysql_error());
+  mysql_query("USE $sql_db");
+?>

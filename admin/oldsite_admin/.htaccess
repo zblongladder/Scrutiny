@@ -1,0 +1,8 @@
+# AuthPAM_enabled on
+AuthName "Login with your Amherst username/password to access scrutiny"
+AuthType Basic
+require user scrutiny
+
+<Files *.tpl>
+Deny from all
+</Files>

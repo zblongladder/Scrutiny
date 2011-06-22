@@ -1,0 +1,54 @@
+<div class="navbar">
+   <div class="navlinks">
+
+<ul class="navlinks">
+<li><a href="./">Search Scrutiny</a></li>
+<li><a href="about.php">About Scrutiny</a></li>
+<li><a href="submit_eval">Submit evaluation</a></li>
+<li><a href="changelog.php">What's new</a></li>
+<li><a href="contact.php">Contact us</a></li>
+</ul>
+</div>
+<div class="quicksearch">
+<form action="search_results.php" method="get">
+<h1 class="qs">quicksearch</h1>
+<p>
+
+<select name="dept_code">
+<option selected="selected">Dept.</option>
+<?php
+//making a drop-down menu of the dept. codes
+//MySQL query. Pretty self-explanatory.
+$query=mysql_query("SELECT DISTINCT dept_code FROM sections");
+//iterating through result
+$amherst_courses = array();
+$five_college_courses = array();
+while($result=mysql_fetch_assoc($query)){
+  if (strpos($result['dept_code'], "/") === false)
+      array_push($amherst_courses, $result['dept_code']);
+  else
+      array_push($five_college_courses, $result['dept_code']);
+}
+sort($amherst_courses);
+sort($five_college_courses);
+foreach($amherst_courses as $course)
+  print "<option>$course</option>";
+foreach($five_college_courses as $course)
+  print "<option>$course</option>";
+?>
+</select>
+<input type="text" name="class_number" value="##" 
+	onfocus="this.value='';" size="2" maxlength="2"/></p>
+<p>
+<input type="text" name="class_name" 
+ value="Class name" size=15" 
+	onfocus="this.value='';"/></p>
+
+<p>
+<input type="text" name="professor" value="Professor" 
+	onfocus="this.value='';" size="8"/>
+
+<input type="submit" value="Go"/></p>
+</form>
+</div>
+</div>

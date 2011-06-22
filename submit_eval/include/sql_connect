@@ -1,0 +1,9 @@
+<?php
+  //getting the neccessary connection info from file & connecting to db.
+  $sql_info=fopen("../private/sql_info",r);
+  $sql_server=chop(fgets($sql_info));
+  $sql_user=chop(fgets($sql_info));
+  $sql_passwd=chop(fgets($sql_info));
+  mysql_connect("$sql_server", "$sql_user", "$sql_passwd") or die(mysql_error());
+  mysql_query("USE scrutiny");
+?>

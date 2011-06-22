@@ -1,0 +1,6 @@
+SSLRequireSSL
+ErrorDocument 403 /cgi-bin/force-ssl
+Authtype Basic
+AuthName text
+require group CN=authz_Student,DC=amherst,DC=edu
+require group CN=authz_Alumni,DC=amherst,DC=edu

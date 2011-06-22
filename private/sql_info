@@ -1,0 +1,6 @@
+# Insert DB info into this file
+# Format :
+# 	 host		$HOSTNAME
+#	 username	$SQL_USERNAME
+#	 password	$SQL_PASSWORD
+#	 database	$DATABASE_NAME

@@ -1,0 +1,173 @@
+-- MySQL dump 10.11
+--
+-- Host: mysql-public.amherst.edu    Database: scrutiny
+-- ------------------------------------------------------
+-- Server version	5.0.51a-log
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `comment_questions`
+--
+
+DROP TABLE IF EXISTS `comment_questions`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `comment_questions` (
+  `question_id` smallint(6) NOT NULL auto_increment,
+  `question_text` varchar(255) collate latin1_general_ci NOT NULL default '',
+  `is_active` int(1) NOT NULL default '1',
+  `ordering` smallint(6) NOT NULL default '0',
+  PRIMARY KEY  (`question_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `comments`
+--
+
+DROP TABLE IF EXISTS `comments`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `comments` (
+  `section_id` mediumint(9) NOT NULL default '0',
+  `submitted_by` varchar(20) collate latin1_general_ci NOT NULL default '',
+  `question_id` smallint(6) NOT NULL default '0',
+  `comment` mediumtext collate latin1_general_ci NOT NULL,
+  PRIMARY KEY  (`section_id`,`submitted_by`,`question_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `contact_emails`
+--
+
+DROP TABLE IF EXISTS `contact_emails`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `contact_emails` (
+  `addr_id` int(10) unsigned NOT NULL auto_increment,
+  `address` varchar(30) collate latin1_general_ci NOT NULL default '',
+  `contact_uname` varchar(30) collate latin1_general_ci NOT NULL default '',
+  `is_active` tinyint(1) NOT NULL default '1',
+  PRIMARY KEY  (`addr_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `enrollment`
+--
+
+DROP TABLE IF EXISTS `enrollment`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `enrollment` (
+  `section_id` mediumint(9) NOT NULL default '0',
+  `username` varchar(20) collate latin1_general_ci NOT NULL default '',
+  PRIMARY KEY  (`section_id`,`username`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `evaluations`
+--
+
+DROP TABLE IF EXISTS `evaluations`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `evaluations` (
+  `section_id` mediumint(9) NOT NULL default '0',
+  `submitted_by` varchar(20) collate latin1_general_ci NOT NULL default '',
+  `major_status` tinyint(4) default '0',
+  `class_year` smallint(6) default '0',
+  `work_hours` tinyint(4) default NULL,
+  `time_submitted` datetime NOT NULL default '2005-05-03 00:00:00',
+  PRIMARY KEY  (`section_id`,`submitted_by`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `raffle_data`
+--
+
+DROP TABLE IF EXISTS `raffle_data`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `raffle_data` (
+  `date_last_run` datetime NOT NULL default '0000-00-00 00:00:00'
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `rating_questions`
+--
+
+DROP TABLE IF EXISTS `rating_questions`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `rating_questions` (
+  `question_id` smallint(6) NOT NULL auto_increment,
+  `question_text` varchar(255) collate latin1_general_ci NOT NULL default '',
+  `is_active` int(1) NOT NULL default '1',
+  PRIMARY KEY  (`question_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `ratings`
+--
+
+DROP TABLE IF EXISTS `ratings`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `ratings` (
+  `section_id` mediumint(9) NOT NULL default '0',
+  `submitted_by` varchar(20) collate latin1_general_ci NOT NULL default '',
+  `question_id` smallint(6) NOT NULL default '0',
+  `rating` tinyint(4) NOT NULL default '0',
+  PRIMARY KEY  (`section_id`,`submitted_by`,`question_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `sections`
+--
+
+DROP TABLE IF EXISTS `sections`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `sections` (
+  `section_id` mediumint(9) NOT NULL auto_increment,
+  `dept_code` varchar(10) collate latin1_general_ci NOT NULL,
+  `number` smallint(6) NOT NULL default '0',
+  `name` varchar(255) collate latin1_general_ci NOT NULL default '',
+  `year` smallint(6) NOT NULL default '0',
+  `semester` tinyint(4) NOT NULL default '0',
+  `professor` varchar(80) collate latin1_general_ci NOT NULL default '',
+  `self_evaluation` mediumtext collate latin1_general_ci NOT NULL,
+  `summary` mediumtext collate latin1_general_ci NOT NULL,
+  `summarized_by` varchar(20) collate latin1_general_ci NOT NULL default '',
+  PRIMARY KEY  (`section_id`),
+  UNIQUE KEY `dept_code` (`dept_code`,`number`,`professor`,`year`,`semester`)
+) ENGINE=MyISAM AUTO_INCREMENT=7899 DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
+SET character_set_client = @saved_cs_client;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2011-06-22 19:48:13

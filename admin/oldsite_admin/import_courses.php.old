@@ -1,0 +1,165 @@
+#!/usr/local/bin/php
+<?php
+ini_set('include_path', '..' . PATH_SEPARATOR . ini_get('include_path'));
+include_once('setup_db.inc.php');
+require_once('utils.inc.php');
+
+function extract_time($field) {
+    // Extract year/semester data
+    if(!preg_match('/(\d{2})(\d{2})([FS])/', $field, $matches)) {
+        echo 'Possible error: couldn\'t parse year ' . $field . "<br \>\n";
+        return false;
+    }
+
+    return $matches;
+}
+
+function extract_course($field) {
+    if(!preg_match('/(\D{4})-(\d{2})H?-/', $field, $matches)) {
+      echo 'Possible error: couldn\'t parse section ' . $field . "<br \>\n";
+      return false;
+    }
+
+    return $matches;
+}
+
+function ensure_section_exists($fields) {
+    global $dbh;
+    $field0 = extract_time($fields[0]);
+    $field1 = extract_course($fields[1]);
+    if(!($field0 and $field1)) return false;
+
+    $section_record = array(
+        'dept_code' => $field1[1],
+        'number' => $field1[2],
+        'semester' => ($field0[3] == 'S') ? 1 : 2,
+        'year' => '20' . ($field0[3] == 'S' ? $field0[2] : $field0[1]),
+        'professor' => str_replace('  ', ' & ', $fields[3]),
+        'name' => $fields[2]
+    );   
+
+    $sections = get_selected_sections(guarded_where_clause($section_record, false));
+    if(count($sections) == 0) {    // Section not added yet
+        $dbh->autoExecute('sections', $section_record);
+        echo "Inserted record $section_id for " . make_section_title($section_record) . "<br />\n";
+        return mysql_insert_id($dbh->connection);
+    } else if(count($sections) == 1) {
+        // Section exists
+        return $sections[0]['section_id'];
+    } else {
+        // Error: these fields should constitute a unique key
+        echo "Data matched more than one section!.<br />";
+        return false;
+    }
+}
+
+function import_courses() {
+    global $dbh;
+    echo "Importing course data...<br>";
+    $lines = fopen($_FILES['courses']['tmp_name'], 'r');
+    while(FALSE != ($fields = fgetcsv($lines,5000))) {
+        $section_id = ensure_section_exists($fields);
+        if($section_id === false) continue;
+          
+        $student = array(
+            'section_id' => $section_id,
+            'username' => trim($fields[5])
+        );
+         
+        $dbh->autoExecute('enrollment', $student);
+    }
+    fclose($lines);
+}
+
+function unpack_timeslot($field) {
+    $retval = array();
+
+    $pattern = '/(\D+) (\d{2}):(\d{2})-(\d{2}):(\d{2})/';
+    if(!preg_match($pattern, $field, $matches)) {
+        echo "Couldn't parse timeslot $field.<br />";
+        return $retval;
+    }
+    $days = $matches[1];
+    $start_h = $matches[2];
+    $start_m = $matches[3];
+    $end_h = $matches[4];
+    $end_m = $matches[5];
+
+    // Fixup start/end times to match a 24 hour clock.  We make the assumption
+    // that all courses start before 7:00 PM and after 7:00 AM, so if something 
+    // is before 07:00, it really should be PM...
+    if($start_h <= 7) {
+        $start_h += 12;
+        $end_h += 12;
+        // And we don't need to worry about digits because 12-19 is always 2-digit
+    }
+
+    $start = $start_h . ':' . $start_m;
+    $end = $end_h . ':' . $end_m;
+
+    // Now we need to unpack the day string and create separate entries for each
+    // day.  Thursday presents problems, as it's abbreviated by 'TH'.  So we have
+    // look through the string and if it's a 'T', look at the next character.
+    $length = strlen($days);
+    $translations = array(
+        'M' => 1,
+        'T' => 2,
+        'W' => 3,
+        'F' => 5
+    );
+    for($i = 0; $i < $length; ++$i) {
+        $day = $translations[$days{$i}];
+        // Special handling for TH
+        if($day == 2 and $i < $length - 1 and $days{$i + 1} == 'H') {
+            $day = 4;
+            ++$i;
+        }
+        $retval[] = array(
+            'day' => $day,
+            'start' => $start,
+            'end' => $end
+        );
+    }
+    return $retval;
+}
+
+function import_timeslots() {
+    global $dbh;
+    echo "Importing timeslots...<br />";
+    echo $_FILES['timeslots']['tmp_name']."\n";
+    $lines = fopen($_FILES['timeslots']['tmp_name'], 'r');
+    while(FALSE != ($fields = fgetcsv($lines,5000))) {
+        $section_id = ensure_section_exists($fields);
+        if($section_id === false) continue;
+        $days = unpack_timeslot($fields[4]);
+        foreach($days as $timeslot) {
+            $timeslot['section_id'] = $section_id;
+            $dbh->autoExecute('timeslots', $timeslot);
+            echo 'Inserted timeslot ' . $fields[4] . " for section $section_id<br />";
+        }
+    }
+    fclose($lines);
+}
+
+if($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if($_FILES['courses']['error'] == UPLOAD_ERR_OK) import_courses();
+    if($_FILES['timeslots']['error'] == UPLOAD_ERR_OK) import_timeslots();
+} else {
+?>
+<html>
+<head>
+<title>Scrutiny - Import Course Data</title>
+</head>
+<body>
+<form method = "post" enctype = "multipart/form-data">
+<input type = "hidden" name = "MAX_FILE_SIZE" value = "4000000" />
+<p>
+Upload the comma-separated-value file of the registrar's course schedule.  Be sure to strip the first two lines (the field names and the blank line) from the file before uploading!<br />
+<input type = "file" name = "courses" size = "60" />
+<br />
+<input type = "submit" value = "Send File" />
+</p>
+</form>
+</body>
+</html>
+<?php } ?>
